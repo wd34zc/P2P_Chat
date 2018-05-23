@@ -1,28 +1,55 @@
-# 导入 socket、sys 模块
+import json
 import socket
-import sys
+import traceback
 
-# 创建 socket 对象
-serversocket = socket.socket(
-    socket.AF_INET, socket.SOCK_STREAM)
+from protocol import ReceiveProtocol, SendProtocol
+from settings import SEVER_MSG_PORT
 
-# 获取本地主机名
-host = socket.gethostname()
 
-port = 8002
+class SeverSocket:
+    def __init__(self):
+        host = socket.gethostname()
+        port = SEVER_MSG_PORT
+        ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ss.bind((host, port))
+        ss.listen(20)
+        self.server_socket = ss
+        print("服务器地址：" + host)
+        print("监听端口：" + str(port))
 
-# 绑定端口号
-serversocket.bind((host, port))
+    def __formatting_msg(self, status, msg):
+        formate_msg = {
+            ReceiveProtocol.STATUS: status,
+            ReceiveProtocol.CONTENT: msg
+        }
+        json_msg = json.dumps(formate_msg).encode()
+        return json_msg
 
-# 设置最大连接数，超过后排队
-serversocket.listen(5)
+    def __parse(self, clint_msg, address):
+        msg = {'address': address}
+        clint_msg = json.loads(clint_msg)
+        data_type = clint_msg[SendProtocol.TYPE]
+        if data_type == SendProtocol.TYPE_TEXT:
+            content = clint_msg[SendProtocol.CONTENT]
+            msg['content'] = content
+            print(msg)
 
-while True:
-    # 建立客户端连接
-    clientsocket, addr = serversocket.accept()
+    def listen(self):
+        while True:
+            # 建立客户端连接
+            try:
+                client_socket, address = self.server_socket.accept()
+                receive_msg = client_socket.recv(1024)
+                self.__parse(receive_msg, address)
+                send_msg = self.__formatting_msg(ReceiveProtocol.STATUS_SUCCESS, "接收成功")
+            except Exception as e:
+                traceback.print_exc()
+                status = ReceiveProtocol.STATUS_ERROR
+                msg = e
+                send_msg = self.__formatting_msg(status, msg)
+            client_socket.send(send_msg)
+            client_socket.close()
 
-    print("连接地址: %s" % str(addr))
 
-    msg = '欢迎访问菜鸟教程！' + "\r\n"
-    clientsocket.send(msg.encode('utf-8'))
-    clientsocket.close()
+socket = SeverSocket()
+socket.listen()
