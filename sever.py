@@ -1,23 +1,28 @@
+# 导入 socket、sys 模块
 import socket
+import sys
 
-import settings
+# 创建 socket 对象
+serversocket = socket.socket(
+    socket.AF_INET, socket.SOCK_STREAM)
 
-ip_port = ['127.0.0.1', 9000]  # 电话卡
-BUFSIZE = 1024  # 收发消息的尺寸
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 买手机
-s.bind(ip_port)  # 手机插卡
-s.listen(9100)  # 手机待机
+# 获取本地主机名
+host = socket.gethostname()
 
-conn, addr = s.accept()  # 手机接电话
-# print(conn)
-# print(addr)
-print('接到来自%s的电话' % addr[0])
+port = 8002
 
-msg = conn.recv(BUFSIZE)  # 听消息,听话
-print(msg, type(msg))
+# 绑定端口号
+serversocket.bind((host, port))
 
-conn.send(msg.upper())  # 发消息,说话
+# 设置最大连接数，超过后排队
+serversocket.listen(5)
 
-conn.close()  # 挂电话
+while True:
+    # 建立客户端连接
+    clientsocket, addr = serversocket.accept()
 
-s.close()  # 手机关机
+    print("连接地址: %s" % str(addr))
+
+    msg = '欢迎访问菜鸟教程！' + "\r\n"
+    clientsocket.send(msg.encode('utf-8'))
+    clientsocket.close()
