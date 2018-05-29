@@ -1,3 +1,4 @@
+import queue
 import threading
 from time import sleep
 
@@ -6,16 +7,18 @@ import math
 
 class ThreadManager(object):
     thread_list = []
-    thread_max = 100
+    thread_max = 260
     interval = 7  # 单位：秒
 
     class Thread(threading.Thread):
-        def __init__(self):
-            super(ThreadManager.Thread, self).__init__()
-            self.func = None
-            self.args = None
+        def __init__(self, func, args=(), level=3):
+            super().__init__()
+            self.func = func
+            self.args = args
             self.result = None
-            self.level = 3
+            self.remark = None
+            self.level = level
+            self.finish = 0
 
         def set_func(self, func, args=()):
             self.func = func
@@ -25,10 +28,7 @@ class ThreadManager(object):
             self.level = level
 
         def start(self):
-            func = self.func
-            args = self.args
-            if func is not None and args is not None:
-                super().start()
+            super().start()
 
         def run(self):
             self.result = self.func(*self.args)
@@ -54,39 +54,44 @@ class ThreadManager(object):
         max = ThreadManager.thread_max
         tl = ThreadManager.thread_list
         thread = None
-        while flag != 0:
-            if len(ThreadManager.thread_list) < ThreadManager.thread_max:
-                thread = ThreadManager.Thread()
-                thread.set_func(func, args)
-                thread.set_level(level)
-                ThreadManager.thread_list.append(thread)
-                flag = 0
-            else:
-                if flag > 1:
-                    sleep(10)
-                ThreadManager.collect_thread()
-                flag += 1
+        if len(ThreadManager.thread_list) == ThreadManager.thread_max:
+            ThreadManager.collect_thread()
+        thread = ThreadManager.Thread(func, args, level)
+        ThreadManager.thread_list.append(thread)
         return thread
 
     @staticmethod
     def collect_thread():
+        thread = ThreadManager.Thread(ThreadManager.__collect, args=(), level=1)
+        ThreadManager.thread_list.append(thread)
+        thread.start()
+        return thread
+
+    @staticmethod
+    def __collect():
         # print("正在回收线程")
         lock = threading.Lock()
+        lock.acquire()
         for t in ThreadManager.thread_list:
             if not t.is_alive():
-                lock.acquire()
                 ThreadManager.thread_list.remove(t)
                 # print('回收线程：', t)
-                lock.release()
+
+        lock.release()
         # print("线程回收结束")
 
     @staticmethod
     def __thread_collection():
-        criticality = math.ceil(ThreadManager.thread_max * 0.8)
+        criticality = math.ceil(ThreadManager.thread_max * 0.9)
+        thread = None
         while True:
             if len(ThreadManager.thread_list) > criticality:
-                ThreadManager.collect_thread()
-                sleep(ThreadManager.interval)
+                if thread is None:
+                    thread = ThreadManager.collect_thread()
+                elif thread.is_alive() is True:
+                    pass
+                else:
+                    thread = ThreadManager.collect_thread()
             sleep(ThreadManager.interval)
 
     @staticmethod
@@ -98,3 +103,16 @@ class ThreadManager(object):
     def get_list_amount():
         return len(ThreadManager.thread_list)
 
+
+    @staticmethod
+    def remove_thread(t):
+        if t in ThreadManager.thread_list:
+            ThreadManager.thread_list.remove(t)
+
+    @staticmethod
+    def get_finish_thread(thread_list):
+        while len(thread_list):
+            for t in thread_list:
+                if t.is_alive is False:
+                    yield t
+                    thread_list.remove(t)

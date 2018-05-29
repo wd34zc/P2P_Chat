@@ -14,8 +14,12 @@ class SeverSocket:
         ss.bind((host, port))
         ss.listen(20)
         self.server_socket = ss
-        print("服务器地址：" + host)
+        print("服务器地址：" + socket.gethostbyname(host))
         print("监听端口：" + str(port))
+
+    def get_sever_host(self):
+        s = self.server_socket
+        pass
 
     def __formatting_msg(self, status, msg):
         formate_msg = {
@@ -33,6 +37,8 @@ class SeverSocket:
             content = clint_msg[SendProtocol.CONTENT]
             msg['content'] = content
             print(msg)
+        if data_type == SendProtocol.TYPE_ALIVE:
+            pass
 
     def listen(self):
         while True:
@@ -51,5 +57,5 @@ class SeverSocket:
             client_socket.close()
 
 
-socket = SeverSocket()
-socket.listen()
+# socket = SeverSocket()
+# socket.listen()

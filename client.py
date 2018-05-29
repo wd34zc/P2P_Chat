@@ -30,20 +30,37 @@ class ClientSocket:
             print("发送失败")
             print(ReceiveProtocol.CONTENT)
 
+    def is_alive(self):
+        flag = False
+        data_type = SendProtocol.TYPE_ALIVE
+        msg = ''
+        try:
+            receive = self.send(self.__formatting_msg(data_type, msg))
+            msg = json.loads(receive)
+            status = msg[ReceiveProtocol.STATUS]
+            if status == ReceiveProtocol.STATUS_SUCCESS:
+                flag = True
+        except Exception:
+            pass
+        finally:
+            return flag
 
     def send_msg(self, msg):
-        data_type = SendProtocol.TYPE_TEXT
-        content = msg
+        data_type = SendProtocol.TYPE_TEXT  # 发送文本类型
+        content = msg  # 文本信息
         send_msg = self.__formatting_msg(data_type, content)
+        receive = self.send(send_msg)
+        self.__parse_receive(receive)
+
+    def send(self, msg):
         # 连接发送
         s = self.client_socket
         s.connect((self.host, self.port))
-        s.send(send_msg)
+        s.send(msg)
         # 接收信息
-        receive = s.recv(1024)
-        self.__parse_receive(receive)
+        return s.recv(1024)
 
 
-c1 = ClientSocket("192.168.199.184")
-c1.send_msg("测试测试")
+# c1 = ClientSocket("192.168.199.184")
+# c1.send_msg("测试测试")
 # c1.send_msg("c222222222222222")
