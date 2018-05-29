@@ -1,16 +1,13 @@
+import gc
 import os
 import platform
 import queue
 import re
 import socket
-
-from datetime import datetime
-
-import gc
 from time import sleep
 
-from ThreadManager import ThreadManager
 from client import ClientSocket
+from manager.thread import ThreadManager
 from sever import SeverSocket
 
 
@@ -26,6 +23,7 @@ class SocketManager:
     ip_list = queue.Queue()
     # ip_list = []
     client_socket_list = []
+    ip_alive_list = []
 
     @staticmethod
     def init():
@@ -68,7 +66,6 @@ class SocketManager:
     def find_alive_ip(ip=None):
         if ip is None:
             ip = SocketManager.sever_ip
-        ip_list = []
         thread_list = []
         ip_prefix = SocketManager.analyse_ip(ip)
         print("开始扫描ip地址")
@@ -94,7 +91,7 @@ class SocketManager:
             if client.is_alive() is True:
                 print(ip)
                 SocketManager.client_socket_list.append(client)
-
+                SocketManager.ip_alive_list.append(ip)
         while SocketManager.ping_ip_num < 255:
             # if len(SocketManager.ip_list) > 0:
             if SocketManager.ip_list.empty() is False:

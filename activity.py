@@ -21,7 +21,6 @@ SocketManager.find_alive_client()
 t = ThreadManager.get_thread(SocketManager.find_alive_client, args=())
 t.start()
 t.join()
-print(datetime.today() - begin)
 
 
 # ip_list = SocketManager.find_ip(my_ip)

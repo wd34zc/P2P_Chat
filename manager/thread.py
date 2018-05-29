@@ -1,8 +1,6 @@
-import queue
+import math
 import threading
 from time import sleep
-
-import math
 
 
 class ThreadManager(object):
