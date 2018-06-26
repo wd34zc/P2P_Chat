@@ -74,7 +74,7 @@ def send_button():
 def update_message_box(message):
     # print(message)
     messageText.insert(tk.END, message + '\n\n')
-    print('aaaaaaaaaa')
+    # print('aaaaaaaaaa')
 
 
 # 选择朋友
