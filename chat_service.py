@@ -1,8 +1,6 @@
-# from gui.chat_windows import update_message_box
 import os
 from time import sleep
 
-from gui import chat_windows
 from manager.socket import SocketManager
 from manager.thread import ThreadManager
 from recorder import Recorder
@@ -70,6 +68,7 @@ def update_message(content):
     # print(content)
     rip = content.split('\n')[0]
     if rip != SocketManager.sever_ip:
+        from gui import chat_windows
         chat_windows.update_message_box(content)
         Recorder.write_to_recorder(rip, content)
 
