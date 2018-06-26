@@ -18,11 +18,10 @@ class SocketManager:
 
     # parameter
     sever_ip = ""
-    ping_ip_num = 0
+    ping_ip_num = None
     sever_socket = None
-    ip_list = queue.Queue()
-    # ip_list = []
-    client_socket_list = []
+    ip_list = None
+    client_socket_dict = {}
     ip_alive_list = []
 
     @staticmethod
@@ -57,45 +56,55 @@ class SocketManager:
                 flag = True
                 break
         if flag:
-            # print("ip: %s is ok ***" % ip_str)
             SocketManager.ip_list.put(ip_str)
+        else:
+            if ip_str in SocketManager.ip_alive_list:
+                SocketManager.ip_alive_list.remove(ip_str)
+                SocketManager.client_socket_dict.pop(ip_str)
         SocketManager.ping_ip_num += 1
-        # print(ip_str)
+        if SocketManager.ping_ip_num == 254:
+            print('扫描完毕。')
+        else:
+            print(SocketManager.ping_ip_num)
+            pass
 
     @staticmethod
     def find_alive_ip(ip=None):
+        SocketManager.ping_ip_num = 0
+        SocketManager.ip_list = queue.Queue()
         if ip is None:
             ip = SocketManager.sever_ip
-        thread_list = []
         ip_prefix = SocketManager.analyse_ip(ip)
         print("开始扫描ip地址")
-        for i in range(1, 256):
-            ip = '%s.%s' % (ip_prefix, i)
-            # _thread.start_new_thread(ping_ip, (ip,))
-            thread = ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,))
-            thread.setDaemon(True)
-            thread.start()
-            thread_list.append(thread)
-            # length = len(thread_list)
-            # print(length)
-            print(i)
-            # if SocketManager.ping_ip_num % 10 == 0:
-            sleep(0.04)
-        gc.collect()
+        # for i in range(1, 256):
+        #     ip = '%s.%s' % (ip_prefix, i)
+        #     ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,)).start()
+        #     sleep(0.04)
+
+        ip = '10.30.10.229'
+        ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,)).start()
 
     @staticmethod
     def find_alive_client():
         def set_client():
             ip = SocketManager.ip_list.get()
-            client = SocketManager.get_client_socket(ip)
-            if client.is_alive() is True:
+            if ClientSocket.is_exist(ip) is True:
                 print(ip)
-                SocketManager.client_socket_list.append(client)
+                SocketManager.client_socket_dict[ip] = None
                 SocketManager.ip_alive_list.append(ip)
-        while SocketManager.ping_ip_num < 255:
-            # if len(SocketManager.ip_list) > 0:
-            if SocketManager.ip_list.empty() is False:
+            else:
+                if ip in SocketManager.ip_alive_list:
+                    SocketManager.ip_alive_list.remove(ip)
+                    SocketManager.client_socket_dict.pop(ip)
+        while SocketManager.ping_ip_num < 254:
+            while SocketManager.ip_list.empty() is False:
                 ThreadManager.get_thread(set_client, args=()).start()
+        if SocketManager.ip_list.empty():
+            dict = SocketManager.client_socket_dict
+            l = SocketManager.ip_alive_list
+            # 清理空间
+            del SocketManager.ip_list
+            gc.collect()
 
     @staticmethod
     def analyse_ip(ip):
@@ -107,7 +116,7 @@ class SocketManager:
         return socket.gethostbyname(socket.gethostname())
 
     @staticmethod
-    def get_sever_socket():
+    def get_server_socket():
         if SocketManager.sever_socket is None:
             SocketManager.sever_socket = SeverSocket()
         return SocketManager.sever_socket
@@ -115,8 +124,25 @@ class SocketManager:
     @staticmethod
     def get_client_socket(host):
         client_socket = ClientSocket(host)
-        SocketManager.client_socket_list.append(client_socket)
+        SocketManager.client_socket_dict[host] = client_socket
         return client_socket
+
+    @staticmethod
+    def is_ip_alive(ip):
+        flag = ClientSocket.is_exist(ip)
+        if flag is False:
+            if ip is SocketManager.ip_alive_list:
+                SocketManager.ip_alive_list.remove(ip)
+        else:
+            if ip not in SocketManager.ip_alive_list:
+                SocketManager.ip_alive_list.append(ip)
+        return flag
+
+    @staticmethod
+    def close_socket(ip):
+        s = SocketManager.client_socket_dict.get(ip)
+        if s is not None:
+            s.req_close()
 
 # begin = datetime.today()
 # SocketManager.find_alive_ip("10.21.20.1")

@@ -2,7 +2,9 @@ import json
 import socket
 import traceback
 
-from protocol import ReceiveProtocol, SendProtocol
+import chat_service
+from manager.thread import ThreadManager
+from protocol import ServerProtocol, ClientProtocol
 from settings import SEVER_MSG_PORT
 
 
@@ -21,41 +23,92 @@ class SeverSocket:
         s = self.server_socket
         pass
 
-    def __formatting_msg(self, status, msg):
+    def __formatting_msg(self, status, msg=''):
         formate_msg = {
-            ReceiveProtocol.STATUS: status,
-            ReceiveProtocol.CONTENT: msg
+            ServerProtocol.CONTENT: msg
         }
-        json_msg = json.dumps(formate_msg).encode()
-        return json_msg
+        json_msg = status + json.dumps(formate_msg)
+        return bytes(json_msg, 'utf8')
 
-    def __parse(self, clint_msg, address):
+    def __parse(self, dtype, clint_msg, address):
         msg = {'address': address}
         clint_msg = json.loads(clint_msg)
-        data_type = clint_msg[SendProtocol.TYPE]
-        if data_type == SendProtocol.TYPE_TEXT:
-            content = clint_msg[SendProtocol.CONTENT]
-            msg['content'] = content
-            print(msg)
-        if data_type == SendProtocol.TYPE_ALIVE:
+        if dtype == ClientProtocol.TYPE_TEXT:
+            content = clint_msg[ClientProtocol.CONTENT]
+            chat_service.update_message(content)
+        else:
             pass
 
+    def resp_close(self, conn):
+        conn.close()
+
     def listen(self):
+        def init_connection(conn, url):
+            while True:
+                try:
+                    recv = conn.recv(1024)
+                    # print(recv)
+                    if recv == '' or len(recv) == 0:
+                        # print('获取不到消息')
+                        continue
+                    else:
+                        recv = str(recv, 'utf8')
+                        status = recv[0:3]
+                        if status == ClientProtocol.TYPE_CLOSE:  # 请求关闭
+                            break
+                        elif status == ClientProtocol.TYPE_EXIST:  # 请求是否在线
+                            send_ok(conn)
+                            conn.close()
+                            break
+                        elif status == ClientProtocol.TYPE_ALIVE:
+                            send_ok(conn)
+                        elif status == ClientProtocol.TYPE_TEXT:  # 接受消息
+                            self.__parse(status, recv[3:], url)
+                            send_status(conn, ServerProtocol.STATUS_SUCCESS)
+                        elif status == ClientProtocol.TYPE_TEST:
+                            send_ok(conn)
+                        else:
+                            print('协议异常!')
+                            break
+                except Exception as e:
+                    traceback.print_exc()
+                    status = ServerProtocol.STATUS_ERROR
+                    msg = e.args
+                    send_msg = self.__formatting_msg(status, msg)
+                    conn.send(send_msg)
+            conn.close()
+            print('连接已关闭:' + url)
+
+        def send_ok(conn):
+            send_status(conn, ServerProtocol.STATUS_OK)
+
+        def send_status(conn, status):
+            conn.send(self.__formatting_msg(status))
+
         while True:
             # 建立客户端连接
-            try:
-                client_socket, address = self.server_socket.accept()
-                receive_msg = client_socket.recv(1024)
-                self.__parse(receive_msg, address)
-                send_msg = self.__formatting_msg(ReceiveProtocol.STATUS_SUCCESS, "接收成功")
-            except Exception as e:
-                traceback.print_exc()
-                status = ReceiveProtocol.STATUS_ERROR
-                msg = e
-                send_msg = self.__formatting_msg(status, msg)
-            client_socket.send(send_msg)
-            client_socket.close()
+            conn, address = self.server_socket.accept()
+            print('获取到链接：' + address[0])
+            ThreadManager.get_thread(init_connection, args=(conn, address[0],)).start()
 
-
-# socket = SeverSocket()
-# socket.listen()
+# s = SeverSocket()
+# s.listen()
+# # host = socket.gethostname()
+# # port = SEVER_MSG_PORT
+# # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# # s.bind((host, port))
+# # s.listen(20)
+# while True:
+#     conn, address = s.server_socket.accept()
+#     # recv = conn.recv(1024)
+#     while True:
+#         recv = conn.recv(1024)
+#         print(recv)
+#         if recv == '':
+#             conn.send(bytes('ok + 空字符串', 'utf8'))
+#         else:
+#             recv = str(recv, 'utf8')
+#             conn.send(bytes('ok + %s' % recv, 'utf8'))
+#         if recv == 'eeee':
+#             break
+#     conn.close()

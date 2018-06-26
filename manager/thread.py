@@ -47,7 +47,7 @@ class ThreadManager(object):
         pass
 
     @staticmethod
-    def get_thread(func, args=(), level=3):
+    def get_thread(func, args=(), level=3, daemo=True):
         flag = 1
         max = ThreadManager.thread_max
         tl = ThreadManager.thread_list
@@ -56,6 +56,7 @@ class ThreadManager(object):
             ThreadManager.collect_thread()
         thread = ThreadManager.Thread(func, args, level)
         ThreadManager.thread_list.append(thread)
+        thread.setDaemon(daemo)
         return thread
 
     @staticmethod
