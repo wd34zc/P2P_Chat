@@ -22,14 +22,14 @@ def init():
 
     def get_news():
         while True:
-            # if server_ip != talking_ip:
-            if chat_service.have_new_message(talking_ip):
-                messageText.config(state=tk.NORMAL)
-                messageText.delete(1.0, tk.END)
-                messages = chat_service.get_recorder(talking_ip)
-                messageText.insert(tk.END, messages)
-                messageText.mark_set('test_mark', tk.CURRENT + ' wordend')
-                messageText.config(state=tk.DISABLED)
+            if server_ip != talking_ip:
+                if chat_service.have_new_message(talking_ip):
+                    messageText.config(state=tk.NORMAL)
+                    messageText.delete(1.0, tk.END)
+                    messages = chat_service.get_recorder(talking_ip)
+                    messageText.insert(tk.END, messages)
+                    messageText.mark_set('test_mark', tk.CURRENT + ' wordend')
+                    messageText.config(state=tk.DISABLED)
             sleep(5)
 
 
@@ -72,6 +72,9 @@ def send_button():
         return fm
     # 格式化
     msg = inputText.get(1.0, tk.END)
+    if len(msg.strip()) <= 1:
+        messagebox.showinfo("提示", '消息不能为空')
+        return
     msg = format_message(msg)
     print(msg)
     # 发送

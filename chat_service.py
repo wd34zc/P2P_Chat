@@ -13,12 +13,13 @@ def send_to_remote(message, ip):
     socket = SocketManager.client_socket_dict.get(ip)
     if socket is None:
         if SocketManager.sever_ip == ip:
-            socket = SocketManager.get_client_socket(ip)
-            socket.connect()
-    # if socket is not None:
-    if socket.send_msg(message) is True:
-        Recorder.write_to_recorder(ip, message + '\n\r\n\r')
-        return True
+            # socket = SocketManager.get_client_socket(ip)
+            # socket.connect()
+            return True
+    if socket is not None:
+        if socket.send_msg(message) is True:
+            Recorder.write_to_recorder(ip, message + '\n\r\n\r')
+            return True
     return False
 
 
@@ -67,8 +68,8 @@ def update_recorders():
 def update_message(content):
     # print(content)
     rip = content.split('\n')[0]
-    # if rip != SocketManager.sever_ip:
-    Recorder.write_to_recorder(rip, content + '\n\n')
+    if rip != SocketManager.sever_ip:
+        Recorder.write_to_recorder(rip, content + '\n\n')
 
 
 def new_friend(ip):
