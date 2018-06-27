@@ -10,7 +10,7 @@ from settings import SEVER_MSG_PORT
 
 class SeverSocket:
     def __init__(self):
-        host = socket.gethostname()
+        host = self.get_sever_host()
         port = SEVER_MSG_PORT
         ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ss.bind((host, port))
@@ -20,8 +20,22 @@ class SeverSocket:
         print("监听端口：" + str(port))
 
     def get_sever_host(self):
-        s = self.server_socket
-        pass
+        addrs = socket.getaddrinfo(socket.gethostname(), None)
+        sever_ip = None
+        for addr in addrs:
+            ip = addr[4][0]
+            if re.match('^\d+.\d+.\d+.\d+$', ip) is not None:
+                ids = ip.split('.')
+                if ids[0] == '192' and ids[1] == '168':
+                    sever_ip = ip
+                    break
+                elif ids[0] == '172' and (ids[1] >= 16 and ids[1] <= 31):
+                    sever_ip = ip
+                elif ids[0] == '10':
+                    sever_ip = ip
+
+        # print(sever_ip)
+        return sever_ip
 
     def __formatting_msg(self, status, msg=''):
         formate_msg = {
