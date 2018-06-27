@@ -78,5 +78,9 @@ def new_friend(ip):
     # from gui import chat_windows
     # chat_windows.
 
+def get_recorder(ip):
+    record = Recorder.get_recorder(ip)
+    return record
+
 
 ThreadManager.get_thread(update_recorders, args=()).start()

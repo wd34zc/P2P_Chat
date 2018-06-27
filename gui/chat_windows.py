@@ -82,16 +82,21 @@ def select_friend(event):
     selection = friendsListbox.curselection()
     if len(selection) > 0:
         ip = friendsListbox.get(selection)
-        if chat_service.is_ip_alive(ip):
-            global talking_ip
-            # 先关闭就链接
-            chat_service.close_ip(talking_ip)
-            # 开启新链接
-            chat_service.connect_ip(ip)
-            talking_ip = ip
-            l2_var.set(get_lable2_text())
-        else:
-            messagebox.showinfo("提示", '该用户已下线')
+        if ip != server_ip:
+            if chat_service.is_ip_alive(ip):
+                global talking_ip
+                # 先关闭就链接
+                chat_service.close_ip(talking_ip)
+                # 开启新链接
+                chat_service.connect_ip(ip)
+                talking_ip = ip
+                l2_var.set(get_lable2_text())
+                # 重新获取记录
+                messageText.delete(1.0, tk.END)
+                messages = chat_service.get_recorder(ip)
+                messageText.insert(tk.END, messages)
+            else:
+                messagebox.showinfo("提示", '该用户已下线')
 
 
 # 获取聊天窗口标题文本

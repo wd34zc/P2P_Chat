@@ -1,9 +1,13 @@
 import os
+import shutil
 
 directory = 'recorders/'
 
 class Recorder:
     manager = {}
+    if os.path.exists('recorders'):
+        shutil.rmtree('recorders')
+    os.mkdir('recorders')
 
     @staticmethod
     def write_to_recorder(ip, content):
@@ -25,3 +29,14 @@ class Recorder:
     def have_read(ip):
         if Recorder.manager.get(ip) is not None:
             Recorder.manager[ip] = 0
+
+    @staticmethod
+    def get_recorder(ip):
+        name = directory + '' + ip
+        if os.path.exists(name):
+            f = open(name, 'r')
+            a = f.read()
+            f.close()
+        else:
+            a = ''
+        return a
