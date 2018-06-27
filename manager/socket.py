@@ -56,6 +56,7 @@ class SocketManager:
                 flag = True
                 break
         if flag:
+            print('扫描到的ip:%s' % ip_str)
             SocketManager.ip_list.put(ip_str)
         else:
             if ip_str in SocketManager.ip_alive_list:
@@ -65,7 +66,7 @@ class SocketManager:
         if SocketManager.ping_ip_num == 254:
             print('扫描完毕。')
         else:
-            print(SocketManager.ping_ip_num)
+            # print(SocketManager.ping_ip_num)
             pass
 
     @staticmethod
