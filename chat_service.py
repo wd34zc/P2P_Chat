@@ -15,10 +15,10 @@ def send_to_remote(message, ip):
         if SocketManager.sever_ip == ip:
             socket = SocketManager.get_client_socket(ip)
             socket.connect()
-    if socket is not None:
-        if socket.send_msg(message) is True:
-            Recorder.write_to_recorder(ip, message + '\n\n')
-            return True
+    # if socket is not None:
+    if socket.send_msg(message) is True:
+        Recorder.write_to_recorder(ip, message + '\n\r\n\r')
+        return True
     return False
 
 
@@ -67,10 +67,8 @@ def update_recorders():
 def update_message(content):
     # print(content)
     rip = content.split('\n')[0]
-    if rip != SocketManager.sever_ip:
-        from gui import chat_windows
-        chat_windows.update_message_box(content)
-        Recorder.write_to_recorder(rip, content)
+    # if rip != SocketManager.sever_ip:
+    Recorder.write_to_recorder(rip, content + '\n\n')
 
 
 def new_friend(ip):
@@ -78,9 +76,18 @@ def new_friend(ip):
     # from gui import chat_windows
     # chat_windows.
 
+
 def get_recorder(ip):
     record = Recorder.get_recorder(ip)
     return record
+
+
+def have_new_message(ip):
+    flag = Recorder.manager.get(ip)
+    if flag is not None:
+        return flag
+    else:
+        return False
 
 
 ThreadManager.get_thread(update_recorders, args=()).start()

@@ -15,7 +15,7 @@ class Recorder:
         f = open(file, 'a+')
         f.write(content)
         f.close()
-        Recorder.manager[ip] = 1
+        Recorder.manager[ip] = True
 
     @staticmethod
     def delete_recorder(ip):
@@ -28,7 +28,7 @@ class Recorder:
     @staticmethod
     def have_read(ip):
         if Recorder.manager.get(ip) is not None:
-            Recorder.manager[ip] = 0
+            Recorder.manager[ip] = False
 
     @staticmethod
     def get_recorder(ip):

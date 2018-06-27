@@ -20,6 +20,19 @@ def init():
             update_friendBox()
             sleep(20)
 
+    def get_news():
+        while True:
+            # if server_ip != talking_ip:
+            if chat_service.have_new_message(talking_ip):
+                messageText.config(state=tk.NORMAL)
+                messageText.delete(1.0, tk.END)
+                messages = chat_service.get_recorder(talking_ip)
+                messageText.insert(tk.END, messages)
+                messageText.mark_set('test_mark', tk.CURRENT + ' wordend')
+                messageText.config(state=tk.DISABLED)
+            sleep(5)
+
+
     global server_ip
     global ip_alive_list
     global talking_ip
@@ -28,6 +41,7 @@ def init():
     talking_ip = server_ip
     chat_service.connect_ip(server_ip)
     ThreadManager.get_thread(update, args=(), level=1).start()
+    ThreadManager.get_thread(get_news, args=(), level=1).start()
 
 
 def add_alive_list(ip):
@@ -50,7 +64,6 @@ def update_friendBox():
         friend_tuple.set(tuple(l))
 
 
-
 # 发送消息
 def send_button():
     def format_message(message):
@@ -63,10 +76,12 @@ def send_button():
     print(msg)
     # 发送
     flag = chat_service.send_to_remote(msg, talking_ip)
+    messageText.config(state=tk.NORMAL)
     if flag:
-        messageText.insert(tk.END, msg + '\n\n')
+        messageText.insert(tk.END, msg + '\n')
     else:
-        messageText.insert(tk.END, msg + '\n（发送失败）\n\n')
+        messageText.insert(tk.END, msg + '\n（发送失败）\n')
+    messageText.config(state=tk.DISABLED)
     inputText.delete(1.0, tk.END)
 
 
@@ -135,6 +150,7 @@ l2 = tk.Label(f2, textvariable=l2_var, bg='white')
 l2.pack(anchor='w', padx='1', pady='3')
 
 messageText = tk.Text(f2)
+messageText.config(state=tk.DISABLED)
 messageText.pack(fill='y', ipadx='3', ipady='3')
 
 # 输入框架 f3
