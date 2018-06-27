@@ -77,13 +77,13 @@ class SocketManager:
             ip = SocketManager.sever_ip
         ip_prefix = SocketManager.analyse_ip(ip)
         print("开始扫描ip地址")
-        # for i in range(1, 256):
-        #     ip = '%s.%s' % (ip_prefix, i)
-        #     ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,)).start()
-        #     sleep(0.04)
+        for i in range(1, 256):
+            ip = '%s.%s' % (ip_prefix, i)
+            ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,)).start()
+            sleep(0.04)
 
-        ip = '192.168.199.235'
-        ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,)).start()
+        # ip = '192.168.199.235'
+        # ThreadManager.get_thread(SocketManager.ping_ip, args=(ip,)).start()
 
     @staticmethod
     def find_alive_client():
