@@ -93,5 +93,11 @@ def have_new_message(ip):
 def get_ip_alive_list():
     return SocketManager.ip_alive_list
 
+def close_windows():
+    ips = SocketManager.ip_alive_list
+    for ip in ips:
+        SocketManager.get_client_socket(ip)
+
+
 
 ThreadManager.get_thread(update_recorders, args=()).start()

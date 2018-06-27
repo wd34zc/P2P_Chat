@@ -124,6 +124,11 @@ def get_lable2_text():
     return text
 
 
+def close_windows():
+    chat_service.close_ip(talking_ip)
+    root.destroy()
+
+
 
 init()
 root = tk.Tk()
@@ -164,4 +169,5 @@ f1.pack(side='left', fill='y')
 f2.pack(side='top', fill='x')
 f3.pack(side='bottom', fill='x')
 
+root.protocol('WM_DELETE_WINDOW', close_windows)
 tk.mainloop()

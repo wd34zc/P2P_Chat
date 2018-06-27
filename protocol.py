@@ -8,6 +8,7 @@ class ClientProtocol:
     TYPE_CLOSE = '002'  # 请求断开连接
     TYPE_TEXT = '003'  # 发送文字信息
     TYPE_TEST = '004'  # 用于测试
+    TYPE_DEAD = '005'  # 关闭程序
 
 
 # 回复协议

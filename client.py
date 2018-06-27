@@ -127,10 +127,27 @@ class ClientSocket:
         elif self.is_close is True:
             print('该socket已关闭')
         else:
+            try:
+                dtype = ClientProtocol.TYPE_CLOSE
+                send_msg = self.__formatting_msg(dtype)
+                recv = self.send(msg=send_msg)
+                if recv[0:3] == '003':
+                    self.client_socket.close()
+                    self.is_close = True
+            except Exception:
+                pass
+
+
+    def send_dead(self):
+        if self.is_connect is not True:
+            print('该socket还没有连接')
+        elif self.is_close is True:
+            print('该socket已关闭')
+        else:
             dtype = ClientProtocol.TYPE_CLOSE
             send_msg = self.__formatting_msg(dtype)
             recv = self.send(msg=send_msg)
-            if recv[0:3] == '003':
+            if recv[0:3] == '005':
                 self.client_socket.close()
                 self.is_close = True
 

@@ -85,6 +85,8 @@ class SeverSocket:
                             self.__parse(status, recv[3:], url)
                         elif status == ClientProtocol.TYPE_TEST:
                             send_ok(conn)
+                        elif status == ClientProtocol.TYPE_DEAD:
+                            send_ok(conn)
                         else:
                             print('协议异常!')
                             break
