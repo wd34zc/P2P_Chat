@@ -16,6 +16,8 @@ class SeverSocket:
         ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ss.bind((host, port))
         ss.listen(20)
+        self.host = host
+        self.port = port
         self.server_socket = ss
         print("服务器地址：" + socket.gethostbyname(host))
         print("监听端口：" + str(port))

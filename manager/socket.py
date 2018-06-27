@@ -114,7 +114,7 @@ class SocketManager:
 
     @staticmethod
     def get_my_ip():
-        return socket.gethostbyname(socket.gethostname())
+        return SocketManager.sever_socket.host
 
     @staticmethod
     def get_server_socket():
