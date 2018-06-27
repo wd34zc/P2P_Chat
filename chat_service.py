@@ -73,4 +73,10 @@ def update_message(content):
         Recorder.write_to_recorder(rip, content)
 
 
+def new_friend(ip):
+    SocketManager.add_new_friend(ip)
+    # from gui import chat_windows
+    # chat_windows.
+
+
 ThreadManager.get_thread(update_recorders, args=()).start()

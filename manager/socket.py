@@ -145,6 +145,11 @@ class SocketManager:
         if s is not None:
             s.req_close()
 
+    @staticmethod
+    def add_new_friend(ip):
+        SocketManager.ip_alive_list.append(ip)
+
+
 # begin = datetime.today()
 # SocketManager.find_alive_ip("10.21.20.1")
 # # while SocketManager.ping_ip_num < 254:

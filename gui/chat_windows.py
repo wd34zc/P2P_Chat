@@ -102,6 +102,7 @@ def get_lable2_text():
     return text
 
 
+
 init()
 root = tk.Tk()
 root.title("P2P_Chat(%s)" % str(server_ip))

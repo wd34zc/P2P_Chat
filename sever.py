@@ -75,13 +75,14 @@ class SeverSocket:
                             break
                         elif status == ClientProtocol.TYPE_EXIST:  # 请求是否在线
                             send_ok(conn)
+                            chat_service.new_friend(url)
                             conn.close()
                             break
-                        elif status == ClientProtocol.TYPE_ALIVE:
+                        elif status == ClientProtocol.TYPE_ALIVE:  # 测试标号
                             send_ok(conn)
                         elif status == ClientProtocol.TYPE_TEXT:  # 接受消息
-                            self.__parse(status, recv[3:], url)
                             send_status(conn, ServerProtocol.STATUS_SUCCESS)
+                            self.__parse(status, recv[3:], url)
                         elif status == ClientProtocol.TYPE_TEST:
                             send_ok(conn)
                         else:
