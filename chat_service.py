@@ -3,7 +3,7 @@ from time import sleep
 
 from manager.socket import SocketManager
 from manager.thread import ThreadManager
-from recorder import Recorder
+from manager.recorder import RecorderManager as Recorder
 
 on_line_ip = {}
 
@@ -89,6 +89,9 @@ def have_new_message(ip):
         return flag
     else:
         return False
+
+def get_ip_alive_list():
+    return SocketManager.ip_alive_list
 
 
 ThreadManager.get_thread(update_recorders, args=()).start()

@@ -3,7 +3,8 @@ import shutil
 
 directory = 'recorders/'
 
-class Recorder:
+
+class RecorderManager:
     manager = {}
     if os.path.exists('recorders'):
         shutil.rmtree('recorders')
@@ -15,20 +16,20 @@ class Recorder:
         f = open(file, 'a+')
         f.write(content)
         f.close()
-        Recorder.manager[ip] = True
+        RecorderManager.manager[ip] = True
 
     @staticmethod
     def delete_recorder(ip):
-        if Recorder.manager.get(ip) is not None:
-            Recorder.manager.pop(ip)
+        if RecorderManager.manager.get(ip) is not None:
+            RecorderManager.manager.pop(ip)
         path = directory + ip
         if os.path.exists(path):
             os.remove(path)
 
     @staticmethod
     def have_read(ip):
-        if Recorder.manager.get(ip) is not None:
-            Recorder.manager[ip] = False
+        if RecorderManager.manager.get(ip) is not None:
+            RecorderManager.manager[ip] = False
 
     @staticmethod
     def get_recorder(ip):

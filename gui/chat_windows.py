@@ -8,8 +8,7 @@ from tkinter import messagebox
 import chat_service
 from manager.thread import ThreadManager
 
-ip_alive_list = []
-server_ip = '123456'
+server_ip = ''
 talking_ip = ''
 
 
@@ -54,7 +53,7 @@ def update_friendBox():
         l = []
         str = friend_tuple.get()
         l = re.findall("\\'([\w\d.]+)\\'", str)
-        new = ip_alive_list
+        new = chat_service.get_ip_alive_list()
         for ip in new:
             if ip not in l:
                 l.append(ip)
