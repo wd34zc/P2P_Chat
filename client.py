@@ -142,7 +142,7 @@ class ClientSocket:
         return receive
 
 
-# c1 = ClientSocket("10.30.10.229")
-# c1.connect()
-# while True:
-#     c1.send(bytes(input(), 'utf8'))
+c1 = ClientSocket("192.168.199.241")
+c1.connect()
+while True:
+    c1.send(bytes(input(), 'utf8'))

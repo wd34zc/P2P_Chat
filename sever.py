@@ -1,4 +1,5 @@
 import json
+import re
 import socket
 import traceback
 
@@ -28,11 +29,11 @@ class SeverSocket:
                 ids = ip.split('.')
                 if ids[0] == '192' and ids[1] == '168':
                     sever_ip = ip
-                    break
                 elif ids[0] == '172' and (ids[1] >= 16 and ids[1] <= 31):
                     sever_ip = ip
                 elif ids[0] == '10':
                     sever_ip = ip
+            # sever_ip = ip = addrs[-1][4][0]
 
         # print(sever_ip)
         return sever_ip
